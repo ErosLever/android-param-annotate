@@ -28,7 +28,7 @@ def process_dir(path):
                         for n, t in enumerate(params, 0 if is_static else 1):
                             output.write('\n    .param p{0}, "p{0}"    # {1}'.format(n+slack,
                                 t.decode('ascii')).encode('ascii'))
-                            if t.decode('ascii') in ('J','D')
+                            if t.decode('ascii') in ('J','D'):
                                 slack += 1
                         last_pos = offset
                     output.write(smali[last_pos:])
