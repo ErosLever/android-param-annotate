@@ -15,7 +15,7 @@ def process_dir(path):
         with entry.open() as f:
             with closing(mmap(f.fileno(), 0, access=ACCESS_READ)) as smali:
                 if re.search(br'\.(?:param|local) ', smali):
-                    raise RuntimeError('Parameters are already annotated')
+                    continue
                 param_inserts = list(find_methods(smali))
                 if not param_inserts:
                     continue
@@ -24,9 +24,12 @@ def process_dir(path):
                 with open(original_path, 'wb') as output:
                     for offset, params, is_static in param_inserts:
                         output.write(smali[last_pos:offset])
+                        slack = 0
                         for n, t in enumerate(params, 0 if is_static else 1):
-                            output.write('\n    .param p{0}, "p{0}"    # {1}'.format(n,
+                            output.write('\n    .param p{0}, "p{0}"    # {1}'.format(n+slack,
                                 t.decode('ascii')).encode('ascii'))
+                            if t.decode('ascii') in ('J','D')
+                                slack += 1
                         last_pos = offset
                     output.write(smali[last_pos:])
         print('[+] Closed', original_path)
